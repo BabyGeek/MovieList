@@ -9,28 +9,57 @@ import XCTest
 @testable import MovieList
 
 final class MovieListTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testMovieIsNotInWatchlist() {
+        let movie = Movie.sample
+        XCTAssertFalse(movie.inWatchlist)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func testMovieAddedToWatchlist() {
+        let viewModel = MoviesViewModel()
+        viewModel.movies = Movie.samples
+        viewModel.toggleMovieWatchlist(.sample)
+        
+        if let movieToTest = viewModel.movies.first(where: { $0.title == Movie.sample.title }) {
+            XCTAssertTrue(movieToTest.inWatchlist)
         }
     }
-
+    
+    func testViewModelMoviesNotSorted() {
+        let viewModel = MoviesViewModel()
+        viewModel.movies = Movie.samples
+        
+        XCTAssertEqual(viewModel.movies.first, Movie.samples.first)
+    }
+    
+    func testViewModelMoviesSortedByTitle() {
+        let viewModel = MoviesViewModel()
+        viewModel.movies = Movie.samples
+        viewModel.sortBy(\.title)
+        
+        XCTAssertEqual(viewModel.movies.first, .init(
+            image: "avengers",
+            title: "Avengers: Age of Ultron",
+            description: "When Tony Stark and Bruce Banner try to jump-start a dormant peacekeeping program called Ultron, things go horribly wrong and it's up to Earth's mightiest heroes to stop the villainous Ultron from enacting his terrible plan.",
+            rating: 7.3,
+            durationInSecondes: 8460,
+            genres: ["Action", "Adventure", "Sci-Fi"],
+            releaseDate: .init(timeIntervalSince1970: .init(1430455833)),
+            trailerLink: "https://www.youtube.com/watch?v=tmeOjFno6Do"))
+    }
+    
+    func testViewModelMoviesSortedByReleaseDate() {
+        let viewModel = MoviesViewModel()
+        viewModel.movies = Movie.samples
+        viewModel.sortBy(\.releaseDate)
+        
+        XCTAssertEqual(viewModel.movies.first, .init(
+            image: "guardians-of-the-galaxy",
+            title: "Guardians of the Galaxy",
+            description: "A group of intergalactic criminals must pull together to stop a fanatical warrior with plans to purge the universe.",
+            rating: 8.0,
+            durationInSecondes: 7800,
+            genres: ["Action", "Adventure", "Comedy"],
+            releaseDate: .init(timeIntervalSince1970: .init(1406868633)),
+            trailerLink: "https://www.youtube.com/watch?v=d96cjJhvlMA"))
+    }
 }
